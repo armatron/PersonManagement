@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Address";
+}
+@model PersonManagement.Models.Address;
+
+
+<h1>Create Address</h1>
+
+<form method="post">
+
+    <div class="mt-3">
+        <label class="form-label">Street</label>
+        <input type="text" class="form-control" asp-for="Street" />
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">City</label>
+        <input type="text" class="form-control" asp-for="City" />
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">ZIP</label>
+        <input type="text" class="form-control" asp-for="ZIP" />
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Country</label>
+        <select class="form-select" asp-items="@ViewBag.CountryList" asp-for="CountryId">
+            <option disabled selected></option>
+        </select>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Person</label>
+        <select class="form-select" asp-items="@ViewBag.PersonList" asp-for="PersonId">
+            <option disabled selected></option>
+        </select>
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-primary" asp-controller="Address" asp-action="List">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+
+</form>

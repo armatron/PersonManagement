@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "TaxNumber";
+}
+@model List<PersonManagement.Models.TaxNumber>;
+
+<h1>List of Tax Numbers</h1>
+
+<a class="btn btn-primary" asp-controller="TaxNumber" asp-action="Create">Create</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Country</th>
+            <th>Person</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var taxnumber in Model)
+        {
+            <tr>
+                <td>@taxnumber.Id</td>
+                <td>@taxnumber.Number</td>
+                <td>@taxnumber.Country.Name</td>
+                <td>@taxnumber.Person.FirstName @taxnumber.Person.LastName</td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="TaxNumber" asp-action="Update" asp-route-id="@taxnumber.Id">Edit</a>
+                 </td>
+             </tr>
+        }
+    </tbody>
+</table>

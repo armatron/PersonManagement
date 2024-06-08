@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Person";
+}
+@model PersonManagement.Models.Person;
+
+
+<h1>Update Person</h1>
+
+@if (Model is null)
+{
+    <p>No data found</p>    
+}
+else {
+    <form method="post">
+
+        <div class="mt-3">
+            <label class="form-label">Id</label>
+            <input type="text" class="form-control" asp-for="Id" readonly />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">First Name</label>
+            <input type="text" class="form-control" asp-for="FirstName" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Last Name</label>
+        <input type="text" class="form-control" asp-for="LastName" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Identity Number</label>
+            <input type="text" class="form-control" asp-for="IdentityNumber" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Email</label>
+        <input type="email" class="form-control" asp-for="Email" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Phone</label>
+        <input type="text" class="form-control" asp-for="Phone" />
+        </div>
+
+        <div class="mt-3">
+            <a class="btn btn-primary" asp-controller="Person" asp-action="List">Cancel</a>
+            <button type="submit" class="btn btn-primary">Store</button>
+            <button type="submit" class="btn btn-primary" asp-controller="Person" asp-action="Delete">Delete</button>
+        </div>
+
+    </form>
+}

@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "TaxNumber";
+}
+@model PersonManagement.Models.TaxNumber;
+
+
+<h1>Update Tax Number</h1>
+
+@if (Model is null)
+{
+    <p>No data found</p>    
+}
+else {
+    <form method="post">
+
+        <div class="mt-3">
+            <label class="form-label">Id</label>
+            <input type="text" class="form-control" asp-for="Id" readonly />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Number</label>
+            <input type="text" class="form-control" asp-for="Number" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Country</label>
+            <input type="text" class="form-control" asp-for="CountryId" />
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Person</label>
+            <input type="text" class="form-control" asp-for="PersonId" readonly />
+        </div>
+
+        <div class="mt-3">
+            <a class="btn btn-primary" asp-controller="TaxNumber" asp-action="List">Cancel</a>
+            <button type="submit" class="btn btn-primary">Store</button>
+            <button type="submit" class="btn btn-primary" asp-controller="TaxNumber" asp-action="Delete">Delete</button>
+        </div>
+
+    </form>
+}

@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Address";
+}
+@model List<PersonManagement.Models.Address>;
+
+<h1>List of Addresses</h1>
+
+<a class="btn btn-primary" asp-controller="Address" asp-action="Create">Create</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Street</th>
+            <th>City</th>
+            <th>ZIP</th>
+            <th>Country</th>
+            <th>Person</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var address in Model)
+        {
+            <tr>
+                <td>@address.Id</td>
+                <td>@address.Street</td>
+                <td>@address.City</td>
+                <td>@address.ZIP</td>
+                <td>@address.Country.Name</td>
+                <td> @address.Person.FirstName @address.Person.LastName</td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="Address" asp-action="Update" asp-route-id="@address.Id">Edit</a>
+                 </td>
+             </tr>
+        }
+    </tbody>
+</table>

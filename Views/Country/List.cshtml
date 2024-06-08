@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Country";
+}
+@model List<PersonManagement.Models.Country>;
+
+<h1>List of Countries</h1>
+
+<a class="btn btn-primary" asp-controller="Country" asp-action="Create">Create</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var country in Model)
+        {
+             <tr>
+                 <td>@country.Id</td>
+                 <td>@country.Name</td>
+                 <td>
+                     <a class="btn btn-primary" asp-controller="Country" asp-action="Update" asp-route-id="@country.Id">Edit</a>
+                 </td>
+             </tr>
+        }
+    </tbody>
+</table>
