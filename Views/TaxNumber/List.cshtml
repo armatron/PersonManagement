@@ -5,14 +5,24 @@
 
 <h1>List of Tax Numbers</h1>
 
-<a class="btn btn-primary" asp-controller="TaxNumber" asp-action="Create">Create</a>
+<form method="get">
+    Find by: 
+    @Html.TextBox("taxNumber", (String)ViewBag.FilterParamNumber, new { placeholder = "Tax Number", @class = "form-control filter-control" })
+    @Html.DropDownList("countryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
+    @Html.DropDownList("personId", ViewBag.PersonList as SelectList, "Select Person", new { @class = "form-select filter-control" })
+    <button type="submit" class="btn btn-primary">Find</button>
+    <a class="btn btn-primary" asp-controller="TaxNumber" asp-action="List">Clear</a>
+    @* <input type="reset" class="btn btn-primary" value="Clear" /> issue with dropdown*@
+</form>
+<br />
+<a class="btn btn-primary" asp-controller="TaxNumber" asp-action="Create">Create new</a>
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Country</th>
-            <th>Person</th>
+            <th>@Html.ActionLink("Id", "List", new { sortOrder = ViewBag.SortParamId })</th>
+            <th>@Html.ActionLink("Tax Number", "List", new { sortOrder = ViewBag.SortParamNumber })</th>
+            <th>@Html.ActionLink("Country", "List", new { sortOrder = ViewBag.SortParamCountry })</th>
+            <th>@Html.ActionLink("Person", "List", new { sortOrder = ViewBag.SortParamPerson })</th>
             <th></th>
         </tr>
     </thead>

@@ -1,16 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace PersonManagement.Models
 {
+    public enum Gender
+    {
+        Male = 1,
+        Female = 2
+    }
     public class Person
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        [StringLength(20)]
+        [Required, StringLength(20)]
         public string IdentityNumber { get; set;  }
+        public Gender? Gender { get; set; }
         [Required]
         [StringLength(200)]
         public string FirstName { get; set; }
@@ -21,8 +27,10 @@ namespace PersonManagement.Models
         public string? Email { get; set; }
         [StringLength(200)]
         public string? Phone { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [StringLength(500), DataType(DataType.MultilineText)]
+        public string? Description { get; set; }
         public virtual ICollection<Address> Address { get; set; }
         public virtual ICollection<TaxNumber> TaxNumber { get; set; }
+       
     }
 }

@@ -5,12 +5,20 @@
 
 <h1>List of Countries</h1>
 
-<a class="btn btn-primary" asp-controller="Country" asp-action="Create">Create</a>
+<form method="get">
+    Find by:
+    @Html.TextBox("name", (String)ViewBag.FilterParamNumber, new { placeholder = "Name", @class = "form-control filter-control" })
+    <button type="submit" class="btn btn-primary">Find</button>
+    <a class="btn btn-primary" asp-controller="Country" asp-action="List">Clear</a>
+    @* <input type="reset" class="btn btn-primary" value="Clear" /> issue with dropdown*@
+</form>
+<br />
+<a class="btn btn-primary" asp-controller="Country" asp-action="Create">Create new</a>
 <table class="table">
     <thead>
         <tr>
-            <th>Id</th>
-            <th>Name</th>
+            <th>@Html.ActionLink("Id", "List", new { sortOrder = ViewBag.SortParamId })</th>
+            <th>@Html.ActionLink("Name", "List", new { sortOrder = ViewBag.SortParamName })</th>
             <th></th>
         </tr>
     </thead>

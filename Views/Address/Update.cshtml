@@ -21,26 +21,35 @@ else {
         <div class="mt-3">
             <label class="form-label">Street</label>
             <input type="text" class="form-control" asp-for="Street" />
+            <span asp-validation-for="Street" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">City</label>
             <input type="text" class="form-control" asp-for="City" />
+            <span asp-validation-for="City" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">ZIP</label>
             <input type="text" class="form-control" asp-for="ZIP" />
+            <span asp-validation-for="ZIP" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Country</label>
-            <input type="text" class="form-control" asp-for="CountryId" />
+            <select class="form-select" asp-items="@ViewBag.CountryList" asp-for="CountryId">
+                <option></option>
+            </select>
+            <span asp-validation-for="CountryId" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Person</label>
-            <input type="text" class="form-control" asp-for="PersonId" />
+            <select class="form-select" asp-items="@ViewBag.PersonList" asp-for="PersonId">
+                <option></option>
+            </select>
+            <span asp-validation-for="PersonId" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
@@ -51,3 +60,9 @@ else {
 
     </form>
 }
+@*
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@
