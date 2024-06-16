@@ -27,9 +27,9 @@ namespace PersonManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List(string sortOrder, string identityNumber, int? gender, string person, string taxNumber, int? countryId, int pageNumber = 1)
+        public async Task<IActionResult> List(string sortOrder, string identityNumber, int? gender, string name, string taxNumber, int? countryId, int pageNumber = 1)
         {
-            var persons = await _appDbContext.Person.ToListAsync();
+            //var persons = await _appDbContext.Person.ToListAsync();
             //var persons = await _appDbContext.Person.Skip((pageNumber -1 ) * pageSize).Take(pageSize).ToListAsync();
 
             // load foreign models items to lists
@@ -42,86 +42,84 @@ namespace PersonManagement.Controllers
                 Value = i.Id.ToString()
             }).ToList(), "Value", "Text", countryId);
 
+            // load object with foreign objects data
+            var personsExtended = _appDbContext.Person
+            .Join(_appDbContext.Address,
+                p => p.Id,
+                a => a.PersonId,
+                (p, a) => new
+                {
+                    p.Id,
+                    p.IdentityNumber,
+                    p.Gender,
+                    p.FirstName,
+                    p.LastName,
+                    p.Email,
+                    p.Phone,
+                    p.Description,
+                    a.CountryId
+                })
+            .Join(_appDbContext.TaxNumber,
+                p => p.Id,
+                tn => tn.PersonId,
+                (p, tn) => new
+                {
+                    p.Id,
+                    p.IdentityNumber,
+                    p.Gender,
+                    p.FirstName,
+                    p.LastName,
+                    p.Email,
+                    p.Phone,
+                    p.Description,
+                    p.CountryId,
+                    TaxNumber = tn.Number
+                })
+            .ToList();
+
+
             // filter list by primary model params and foreign models params
             if (!string.IsNullOrEmpty(identityNumber))
             {
-                persons = persons.Where(obj => obj.IdentityNumber.ToUpper() == identityNumber.ToUpper()).ToList();  // exact match
+                personsExtended = personsExtended.Where(obj => obj.IdentityNumber.ToUpper() == identityNumber.ToUpper()).ToList();  // exact match
             }
             if (gender != null)
             {
-                persons = persons.Where(obj => (int)obj.Gender == gender).ToList();
+                personsExtended = personsExtended.Where(obj => (int)obj.Gender == gender).ToList();
             }
-            if (!string.IsNullOrEmpty(person))
+            if (!string.IsNullOrEmpty(name))
             {
-                persons = persons.Where(obj => obj.FirstName.ToUpper().StartsWith(person.ToUpper()) || obj.LastName.ToUpper().StartsWith(person.ToUpper())).ToList(); // like operator
+                personsExtended = personsExtended.Where(obj => obj.FirstName.ToUpper().StartsWith(name.ToUpper()) || obj.LastName.ToUpper().StartsWith(name.ToUpper())).ToList(); // like operator
             }
             if (!string.IsNullOrEmpty(taxNumber))
             {
-                // join taxnumbers
-                persons = _appDbContext.Person
-                .Join(_appDbContext.TaxNumber,
-                      p => p.Id,
-                      tn => tn.PersonId,
-                      (p, tn) => new {
-                          p.Id, 
-                          p.IdentityNumber,
-                          p.Gender, 
-                          p.FirstName, 
-                          p.LastName, 
-                          p.Email, 
-                          p.Phone, 
-                          p.Description, 
-                          TaxNumber = tn.Number
-                      })
-                .Where(p => p.TaxNumber.ToUpper().StartsWith(taxNumber.ToUpper()))
-                .Select(p => new Person() { 
-                    Id = p.Id, 
-                    IdentityNumber = p.IdentityNumber,
-                    Gender = p.Gender,
-                    FirstName = p.FirstName, 
-                    LastName = p.LastName, 
-                    Email = p.Email, 
-                    Phone = p.Phone, 
-                    Description = p.Description })
-                .ToList();
-
-
+                personsExtended = personsExtended.Where(p => p.TaxNumber.ToUpper().StartsWith(taxNumber.ToUpper())).ToList();
             }
             if (countryId != null)
             {
-                // join addresses
-                persons = _appDbContext.Person
-                .Join(_appDbContext.Address,
-                      p => p.Id,
-                      a => a.PersonId,
-                      (p, a) => new {
-                          p.Id,
-                          p.IdentityNumber,
-                          p.Gender,
-                          p.FirstName,
-                          p.LastName,
-                          p.Email,
-                          p.Phone,
-                          p.Description,
-                          a.CountryId
-                      })
-                .Where(p => p.CountryId == countryId)
-                .Select(p => new Person()
-                {
-                    Id = p.Id,
-                    IdentityNumber = p.IdentityNumber,
-                    Gender = p.Gender,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Email = p.Email,
-                    Phone = p.Phone,
-                    Description = p.Description
-                })
-                .ToList();
+                personsExtended = personsExtended.Where(p => p.CountryId == countryId).ToList();
             }
+
+            // convert to person object to distinct
+            var persons = personsExtended.Select(p => new Person()
+            {
+                Id = p.Id,
+                IdentityNumber = p.IdentityNumber,
+                Gender = p.Gender,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                Email = p.Email,
+                Phone = p.Phone,
+                Description = p.Description
+            }).ToList();
+
+            // .Distinct() doesn't work. workaround...
+            persons = persons.GroupBy(p => p.Id).Select(g => g.First()).ToList();
+
+            // store current filter values
             ViewBag.FilterParamIdentityNumber = identityNumber;
             ViewBag.FilterParamGender = gender;
-            ViewBag.FilterParamPerson = person;
+            ViewBag.FilterParamName = name;
             ViewBag.FilterParamTaxNumber = taxNumber;
             ViewBag.FilterParamCountryId = countryId;
 

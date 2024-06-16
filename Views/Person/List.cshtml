@@ -8,7 +8,7 @@
 <form method="get">
     Find by:
     @Html.TextBox("identityNumber", (String)ViewBag.FilterParamIdentityNumber, new { placeholder = "Identity Number", @class = "form-control filter-control" })
-    @Html.TextBox("person", (String)ViewBag.FilterParamPerson, new { placeholder = "Person", @class = "form-control filter-control" })
+    @Html.TextBox("name", (String)ViewBag.FilterParamName, new { placeholder = "Person", @class = "form-control filter-control" })
     @Html.TextBox("taxNumber", (String)ViewBag.FilterParamTaxNumber, new { placeholder = "Tax Number", @class = "form-control filter-control" })
     @Html.DropDownList("countryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
     <button type="submit" class="btn btn-primary">Find</button>
