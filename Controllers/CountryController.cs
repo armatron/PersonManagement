@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PersonManagement.Data;
 using PersonManagement.Models;
 using System;
 using System.Diagnostics.Metrics;
+using System.Net;
 
 namespace PersonManagement.Controllers
 {
@@ -64,19 +66,24 @@ namespace PersonManagement.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Country country)
         {
-            /*
+            ModelState["TaxNumber"].ValidationState = ModelValidationState.Skipped;
+            ModelState["Address"].ValidationState = ModelValidationState.Skipped;
             if (!ModelState.IsValid)
             {
-                return Create();    // return View() does not populate drodown
+                return Create();    // to load foreign objects values if they are referenced
             }
-            */
-            if (country is not null)
+            
+            if (country == null)
             {
-                _appDbContext.Country.Update(country);
-                await _appDbContext.SaveChangesAsync();
+                return NotFound();
             }
+
+            _appDbContext.Country.Update(country);
+            await _appDbContext.SaveChangesAsync();
+
             return RedirectToAction("List", "Country");
         }
 
@@ -86,53 +93,53 @@ namespace PersonManagement.Controllers
 
             var country = await _appDbContext.Country.FindAsync(id);
 
-            //await _appDbContext.SaveChangesAsync();
-
             return View(country);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Country country)
         {
-
+            ModelState["TaxNumber"].ValidationState = ModelValidationState.Skipped;
+            ModelState["Address"].ValidationState = ModelValidationState.Skipped;
+            if (!ModelState.IsValid)
+            {
+                return await Update(country.Id);    // to load foreign objects values if they are referenced
+            }
+            
             var dbCountry = await _appDbContext.Country.FindAsync(country.Id);
 
-            if (dbCountry is not null)
-            {
-                dbCountry.Name = country.Name;
-                
-                _appDbContext.Country.Update(dbCountry);
-                await _appDbContext.SaveChangesAsync();
+            if (dbCountry == null)
+            { 
+                return NotFound(); 
             }
 
-            return RedirectToAction("List", "Country");
+            dbCountry.Name = country.Name;
+                
+            _appDbContext.Country.Update(dbCountry);
+            await _appDbContext.SaveChangesAsync();
+
+            return RedirectToAction("Update", "Country", country.Id);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Country country)
         {
             var dbCountry = await _appDbContext.Country
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == country.Id);
-            if (dbCountry is not null)
+            
+            if (dbCountry == null)
             {
-                _appDbContext.Country.Remove(country);
-                await _appDbContext.SaveChangesAsync();
+                return NotFound();
             }
+
+            _appDbContext.Country.Remove(country);
+            await _appDbContext.SaveChangesAsync();
 
             return RedirectToAction("List", "Country");
         }
 
-        public IEnumerable<SelectListItem> CountryDropDown()
-        {
-            IEnumerable<SelectListItem> countries =
-                _appDbContext.Country.Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.Id.ToString()
-                });
-
-            return countries;
-        }
     }
 }

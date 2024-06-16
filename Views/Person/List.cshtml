@@ -7,9 +7,10 @@
 
 <form method="get">
     Find by:
-    @Html.TextBox("identityNumber", (String)ViewBag.FilterParamNumber, new { placeholder = "Identity Number", @class = "form-control filter-control" })
-    @Html.TextBox("firstName", (String)ViewBag.FilterParamNumber, new { placeholder = "First Name", @class = "form-control filter-control" })
-    @Html.TextBox("lastName", (String)ViewBag.FilterParamNumber, new { placeholder = "Last Name", @class = "form-control filter-control" })
+    @Html.TextBox("identityNumber", (String)ViewBag.FilterParamIdentityNumber, new { placeholder = "Identity Number", @class = "form-control filter-control" })
+    @Html.TextBox("person", (String)ViewBag.FilterParamPerson, new { placeholder = "Person", @class = "form-control filter-control" })
+    @Html.TextBox("taxNumber", (String)ViewBag.FilterParamTaxNumber, new { placeholder = "Tax Number", @class = "form-control filter-control" })
+    @Html.DropDownList("countryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
     <button type="submit" class="btn btn-primary">Find</button>
     <a class="btn btn-primary" asp-controller="Person" asp-action="List">Clear</a>
     @* <input type="reset" class="btn btn-primary" value="Clear" /> issue with dropdown*@

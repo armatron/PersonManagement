@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using Microsoft.VisualBasic;
 using PersonManagement.Data;
 using PersonManagement.Models;
 using System;
+using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PersonManagement.Controllers
@@ -22,7 +24,7 @@ namespace PersonManagement.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List(string sortOrder, string taxNumber, int? countryId, int? personId, int pageNumber = 1)
+        public async Task<IActionResult> List(string sortOrder, string taxNumber, int? countryId, string person, int pageNumber = 1)
         {
             // load primary model items to list
             var taxnumbers = await _appDbContext.TaxNumber.ToListAsync();
@@ -42,18 +44,20 @@ namespace PersonManagement.Controllers
                 taxnumber.Person = persons.FirstOrDefault(obj => obj.Id == taxnumber.PersonId);
             }
 
-            // populate foreign models dropdown
+            // populate foreign models dropdown with selected item
             ViewBag.CountryList = new SelectList(countries.Select(i => new SelectListItem
-                {
-                    Text = i.Name,
-                    Value = i.Id.ToString()
-                }).ToList(), "Value", "Text", countryId);
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            }).ToList(), "Value", "Text", countryId);
 
+            /*
             ViewBag.PersonList = new SelectList(persons.Select(i => new SelectListItem
             {
                 Text = $"{i.FirstName} {i.LastName}",
                 Value = i.Id.ToString()
             }).ToList(), "Value", "Text", personId);
+            */
 
             // filter list by primary model params and foreign models params
             if (!string.IsNullOrEmpty(taxNumber))
@@ -64,13 +68,13 @@ namespace PersonManagement.Controllers
             {
                 taxnumbers = taxnumbers.Where(obj => obj.Country.Id == countryId).ToList();
             }
-            if (personId != null)
+            if (!string.IsNullOrEmpty(person))
             {
-                taxnumbers = taxnumbers.Where(obj => obj.Person.Id == personId).ToList();
+                taxnumbers = taxnumbers.Where(obj => obj.Person.FirstName.ToUpper().StartsWith(person.ToUpper()) || obj.Person.LastName.ToUpper().StartsWith(person.ToUpper())).ToList();
             }
             ViewBag.FilterParamNumber = taxNumber;
             ViewBag.FilterParamCountryId = countryId;
-            ViewBag.FilterParamPersonId = personId;
+            ViewBag.FilterParamPerson = person;
 
             // sort list by primary model params and foreign models params
             ViewBag.SortParamId = sortOrder == "Id" ? "Id_DESC" : "Id";
@@ -115,102 +119,133 @@ namespace PersonManagement.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            PersonController persons = new PersonController(_appDbContext);
-            ViewBag.PersonList = persons.PersonDropDown();
+            // load foreign objects items
+            List<Country> countries = _appDbContext.Country.ToList();
+            List<Person> persons = _appDbContext.Person.ToList();
 
-            CountryController countries = new CountryController(_appDbContext);
-            ViewBag.CountryList = countries.CountryDropDown();
+            // populate foreign objects dropdown with selected item
+            ViewBag.CountryList = new SelectList(countries.Select(i => new SelectListItem
+            {
+                Text = i.Name,
+                Value = i.Id.ToString()
+            }).ToList(), "Value", "Text");
+
+            ViewBag.PersonList = new SelectList(persons.Select(i => new SelectListItem
+            {
+                Text = $"{i.FirstName} {i.LastName}",
+                Value = i.Id.ToString()
+            }).ToList(), "Value", "Text");
+
 
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TaxNumber taxNumber)
         {
-            /*
+            ModelState["Person"].ValidationState = ModelValidationState.Skipped;
+            ModelState["Country"].ValidationState = ModelValidationState.Skipped;
             if (!ModelState.IsValid)
             {
-                return View();
+                return Create();    // to load foreign objects values if they are referenced
             }
-            */
-            if (taxNumber is not null)
+            
+            if (taxNumber == null)
             {
-                _appDbContext.TaxNumber.Update(taxNumber);
-                await _appDbContext.SaveChangesAsync();
+                return NotFound();
             }
+
+            _appDbContext.TaxNumber.Update(taxNumber);
+            await _appDbContext.SaveChangesAsync();
+
             return RedirectToAction("List", "TaxNumber");
         }
 
         [HttpGet]
-        public async Task<IActionResult> Update(int? id)
+        public async Task<IActionResult> Update(int id)
         {
-            if (id == null)
+
+            // load object
+            var dbTaxNumber = await _appDbContext.TaxNumber.FindAsync(id);
+
+            if (dbTaxNumber == null)
             {
                 return NotFound();
             }
 
-            var taxNumber = await _appDbContext.TaxNumber.FindAsync(id);
+            // load foreign objects items
+            List<Country> countries = _appDbContext.Country.ToList();
+            List<Person> persons = _appDbContext.Person.ToList();
 
-            if (taxNumber == null)
+            // populate foreign objects dropdown with selected item
+            ViewBag.CountryList = new SelectList(countries.Select(i => new SelectListItem
             {
-                return NotFound();
-            }
+                Text = i.Name,
+                Value = i.Id.ToString()
+            }).ToList(), "Value", "Text");
 
-            PersonController persons = new PersonController(_appDbContext);
-            ViewBag.PersonList = persons.PersonDropDown();
+            ViewBag.PersonList = new SelectList(persons.Select(i => new SelectListItem
+            {
+                Text = $"{i.FirstName} {i.LastName}",
+                Value = i.Id.ToString()
+            }).ToList(), "Value", "Text");
 
-            CountryController countries = new CountryController(_appDbContext);
-            ViewBag.CountryList = countries.CountryDropDown();
+            // person should be read only
+            Person person = persons.FirstOrDefault(obj => obj.Id == dbTaxNumber.PersonId);
 
-            return View(taxNumber);
+            ViewBag.PersonName = $"{person.FirstName} {person.LastName}";
+
+            return View(dbTaxNumber);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(TaxNumber taxNumber)
         {
-            /*
+            ModelState["Person"].ValidationState = ModelValidationState.Skipped;
+            ModelState["Country"].ValidationState = ModelValidationState.Skipped;
             if (!ModelState.IsValid)
             {
-                return View("TaxNumber");   // return View() does not populate drodown
+                return await Update(taxNumber.Id);    // to load foreign objects values if they are referenced
             }
-            */
+
             var dbTaxNumber = await _appDbContext.TaxNumber.FindAsync(taxNumber.Id);
 
-            if (dbTaxNumber is not null)
-            {
-                dbTaxNumber.Number = taxNumber.Number;
-                dbTaxNumber.CountryId = taxNumber.CountryId;
-                dbTaxNumber.PersonId = taxNumber.PersonId;
-
-                _appDbContext.TaxNumber.Update(dbTaxNumber);
-                await _appDbContext.SaveChangesAsync();
-            }
-
-            return RedirectToAction("List", "TaxNumber");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(TaxNumber taxNumber)
-        {
-            if (taxNumber == null)
+            if (dbTaxNumber == null)
             {
                 return NotFound();
             }
 
+            dbTaxNumber.Number = taxNumber.Number;
+            dbTaxNumber.CountryId = taxNumber.CountryId;
+            //dbTaxNumber.PersonId = taxNumber.PersonId;    // should not be changed
+
+            _appDbContext.TaxNumber.Update(dbTaxNumber);
+            await _appDbContext.SaveChangesAsync();
+            
+            return RedirectToAction("Update", "TaxNumber", taxNumber.Id);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(TaxNumber taxNumber)
+        {
+            
             var dbTaxNumber = await _appDbContext.TaxNumber
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == taxNumber.Id);
 
-            if (dbTaxNumber is not null)
+            if (dbTaxNumber == null)
             {
-                _appDbContext.TaxNumber.Remove(taxNumber);
-                await _appDbContext.SaveChangesAsync();
+                return NotFound();
             }
+
+            _appDbContext.TaxNumber.Remove(taxNumber);
+            await _appDbContext.SaveChangesAsync();
 
             return RedirectToAction("List", "TaxNumber");
         }
 
-
-        
     }
 }

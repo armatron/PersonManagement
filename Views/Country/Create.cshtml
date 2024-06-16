@@ -6,14 +6,6 @@
 
 <h1>Create Country</h1>
 
-<form method="get">
-    Find by:
-    @Html.TextBox("Name", (String)ViewBag.FilterParamNumber, new { placeholder = "Street", @class = "form-control filter-control" })
-    <button type="submit" class="btn btn-primary">Find</button>
-    <a class="btn btn-primary" asp-controller="Country" asp-action="List">Clear</a>
-    @* <input type="reset" class="btn btn-primary" value="Clear" /> issue with dropdown*@
-</form>
-<br />
 <form method="post">
 
     <div class="mt-3">
@@ -22,8 +14,8 @@
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <div class="mt-3">
-        <a class="btn btn-primary" asp-controller="Country" asp-action="List">Cancel</a>
+    <div class="mt-5">
+        <a class="btn btn-primary" asp-controller="Country" asp-action="List">Back</a>
         <button type="submit" class="btn btn-primary">Create</button>
     </div>
 

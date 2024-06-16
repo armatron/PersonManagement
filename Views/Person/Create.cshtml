@@ -53,12 +53,46 @@
     </div>
 
     <div class="mt-3">
-        <a class="btn btn-primary" asp-controller="Person" asp-action="List">Cancel</a>
+        <label class="form-label">Tax Numbers</label>
+        <div class="form-control">
+            <input class="btn btn-primary" id="AddTaxNumber" type="button" value="Add Tax Number" onclick="AddCloneContainer($('#TaxNumberTemplate'), 'TaxNumberClone')" />
+            <span asp-validation-for="TaxNumber" class="text-danger"></span>
+            @* template to be cloned for multiple tax numbers *@
+            <div id="TaxNumberTemplate" style="display:none;">
+                @Html.TextBox("taxNumberId", 0, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                @Html.TextBox("taxNumber", null, new { placeholder = "Tax Number", @class = "form-control filter-control" })
+                @Html.DropDownList("taxNumberCountryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
+                <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <label class="form-label">Addresses</label>
+        <div class="form-control">
+            <input class="btn btn-primary" id="AddAddress" type="button" value="Add Address" onclick="AddCloneContainer($('#AddressTemplate'), 'AddressClone')" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+            @* template to be cloned for multiple addresses *@
+            <div id="AddressTemplate" style="display:none;">
+                @Html.TextBox("addressId", 0, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                @Html.TextBox("Street", null, new { placeholder = "Street", @class = "form-control filter-control" })
+                @Html.TextBox("City", null, new { placeholder = "City", @class = "form-control filter-control" })
+                @Html.TextBox("Zip", null, new { placeholder = "ZIP", @class = "form-control filter-control" })
+                @Html.DropDownList("addressCountryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
+                <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a class="btn btn-primary" asp-controller="Person" asp-action="List">Back</a>
         <button type="submit" class="btn btn-primary">Create</button>
     </div>
 
 </form>
-@* 
+@*
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");

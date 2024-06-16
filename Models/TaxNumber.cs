@@ -8,9 +8,9 @@ namespace PersonManagement.Models
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "The Person field is required.")]
         public int PersonId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "The Country field is required.")]
         public int CountryId { get; set; }
         [Required, StringLength(50)]
         public string Number { get; set; }

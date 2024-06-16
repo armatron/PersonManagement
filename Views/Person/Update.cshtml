@@ -8,9 +8,10 @@
 
 @if (Model is null)
 {
-    <p>No data found</p>    
+    <p>No data found</p>
 }
-else {
+else
+{
     <form method="post">
 
         <div class="mt-3">
@@ -23,31 +24,37 @@ else {
             <select class="form-select" asp-items="Html.GetEnumSelectList<Gender>()" asp-for="Gender">
                 <option></option>
             </select>
+            <span asp-validation-for="Gender" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">First Name</label>
             <input type="text" class="form-control" asp-for="FirstName" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Last Name</label>
-        <input type="text" class="form-control" asp-for="LastName" />
+            <input type="text" class="form-control" asp-for="LastName" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Identity Number</label>
             <input type="text" class="form-control" asp-for="IdentityNumber" />
+            <span asp-validation-for="IdentityNumber" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Email</label>
-        <input type="email" class="form-control" asp-for="Email" />
+            <input type="email" class="form-control" asp-for="Email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
             <label class="form-label">Phone</label>
-        <input type="text" class="form-control" asp-for="Phone" />
+            <input type="text" class="form-control" asp-for="Phone" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
         </div>
 
         <div class="mt-3">
@@ -57,7 +64,71 @@ else {
         </div>
 
         <div class="mt-3">
-            <a class="btn btn-primary" asp-controller="Person" asp-action="List">Cancel</a>
+            <label class="form-label">Tax Numbers</label>
+            <div class="form-control">
+                <input class="btn btn-primary" id="AddTaxNumber" type="button" value="Add Tax Number" onclick="AddCloneContainer($('#TaxNumberTemplate'), '#TaxNumberClone')" />
+                <span asp-validation-for="TaxNumber" class="text-danger"></span>
+                @* template to be cloned for multiple tax numbers *@
+                <div id="TaxNumberTemplate" style="display:none;">
+                    @Html.TextBox("taxNumberId", 0, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                    @Html.TextBox("taxNumber", null, new { placeholder = "Tax Number", @class = "form-control filter-control" })
+                    @Html.DropDownList("taxNumberCountryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
+                    <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                </div>
+
+                @* load related tax numbers *@
+                @foreach (TaxNumber taxnumber in Model.TaxNumber)
+                {
+                    <div id="TaxNumberClone">
+                        @Html.TextBox("taxNumberId", taxnumber.Id, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                        @Html.TextBox("taxNumber", taxnumber.Number, new { placeholder = "Tax Number", @class = "form-control filter-control" })
+                        @{
+                            var countries = new SelectList(ViewBag.CountryList, "Value", "Text", taxnumber.CountryId);
+                            @Html.DropDownList("taxNumberCountryId", countries, "Select Country", new { @class = "form-select filter-control" })
+                        }
+                        <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <label class="form-label">Addresses</label>
+            <div class="form-control">
+                <input class="btn btn-primary" id="AddAddress" type="button" value="Add Address" onclick="AddCloneContainer($('#AddressTemplate'), '#AddressClone')" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+                @* template to be cloned for multiple addresses *@
+                <div id="AddressTemplate" style="display:none;">
+                    @Html.TextBox("addressId", 0, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                    @Html.TextBox("Street", null, new { placeholder = "Street", @class = "form-control filter-control" })
+                    @Html.TextBox("City", null, new { placeholder = "City", @class = "form-control filter-control" })
+                    @Html.TextBox("Zip", null, new { placeholder = "ZIP", @class = "form-control filter-control" })
+                    @Html.DropDownList("addressCountryId", ViewBag.CountryList as SelectList, "Select Country", new { @class = "form-select filter-control" })
+                    <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                </div>
+
+
+                @* load related addresses *@
+                @foreach (Address address in Model.Address)
+                {
+                    <div id="AddressClone">
+                        @Html.TextBox("addressId", address.Id, new { @class = "form-control filter-control", @readonly = "readonly", @hidden = "true" })
+                        @Html.TextBox("Street", address.Street, new { placeholder = "Street", @class = "form-control filter-control" })
+                        @Html.TextBox("City", address.City, new { placeholder = "City", @class = "form-control filter-control" })
+                        @Html.TextBox("Zip", address.ZIP, new { placeholder = "ZIP", @class = "form-control filter-control" })
+                        @{
+                            var countries = new SelectList(ViewBag.CountryList, "Value", "Text", address.CountryId);
+                            @Html.DropDownList("addressCountryId", countries, "Select Country", new { @class = "form-select filter-control" })
+                        }
+                        <button class="btn btn-primary" onclick="RemoveCloneContainer(this)">Remove</button>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="mt-5">
+            <a class="btn btn-primary" asp-controller="Person" asp-action="List">Back</a>
+            <a class="btn btn-primary" asp-controller="Person" asp-action="Update">Reload</a>
             <button type="submit" class="btn btn-primary">Store</button>
             <button type="submit" class="btn btn-primary" asp-controller="Person" asp-action="Delete">Delete</button>
         </div>
