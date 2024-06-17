@@ -34,7 +34,7 @@ Each module contains filter to search data id sorting data.
 
 
 # TODO:
-1. Prevent cascading delete
+1. Prevent constrain delete
 2. Simultaneous filtering and sorting
 3. Pagination
 4. Validations for foreign entities
